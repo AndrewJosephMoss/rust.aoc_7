@@ -27,10 +27,6 @@ fn map_line_to_cmd(line: &str) -> CMD {
     todo!();
 }
 
-fn parse_cmd(input: &str) -> CMD {
-    todo!();
-}
-
 fn parse_ls(input: &str) -> IResult<&str, CMD> {
     let (input, _) = tag("$ ")(input)?;
     Ok((input, CMD::Ls(Vec::<File>::new())))
