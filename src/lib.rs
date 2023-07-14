@@ -54,6 +54,45 @@ pub fn process_part_1(input: &str) -> usize {
     sum_of_below_100_000
 }
 
+
+pub fn process_part_2(input: &str) -> usize {
+    let mut dirs = vec!["/"];
+    let mut dir_sizes = HashMap::<String, usize>::new();
+    input.lines().map(|line| parse_line(line).unwrap().1).for_each(|cmd| {
+        match cmd {
+            Line::CdUp => {
+                if dirs.len() > 1 {
+                    dirs.pop();
+                }
+            },
+            Line::CdRoot => {
+                dirs.truncate(1);
+            },
+            Line::CdIn(dir) => {
+                dirs.push(dir);
+            },
+            Line::Ls => (),
+            Line::Dir(_) => (),
+            Line::File(file) => {
+                let mut dir_path = String::from("");
+                dirs.iter().for_each(|dir| {
+                    dir_path += dir;
+                    dir_sizes.entry(dir_path.clone()).and_modify(|size| *size += file.size).or_insert(file.size);
+                });
+            }
+        }
+    });
+    
+    let root_size = dir_sizes.get("/").unwrap();
+    let diff = 70_000_000 - root_size;
+    let req = 30_000_000 - diff;
+    let mut possible_dirs = dir_sizes.into_iter().filter(|dir| dir.1 >= req).collect::<Vec<(String, usize)>>();
+    possible_dirs.sort_by(|a, b| a.1.cmp(&b.1));
+    let smallest = &possible_dirs[0];
+    smallest.1
+}
+
+
 fn parse_line(input: &str) -> IResult<&str, Line> {
     let (input, line) = alt((parse_cd, parse_dir, parse_file, parse_ls))(input)?;
     Ok((input, line))
